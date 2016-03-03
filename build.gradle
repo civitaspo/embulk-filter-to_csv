@@ -19,8 +19,8 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 dependencies {
-    compile  "org.embulk:embulk-core:0.8.6"
-    provided "org.embulk:embulk-core:0.8.6"
+    compile  "org.embulk:embulk-core:0.8.+"
+    provided "org.embulk:embulk-core:0.8.+"
     // compile "YOUR_JAR_DEPENDENCY_GROUP:YOUR_JAR_DEPENDENCY_MODULE:YOUR_JAR_DEPENDENCY_VERSION"
     testCompile "junit:junit:4.+"
 }
@@ -78,7 +78,7 @@ Gem::Specification.new do |spec|
   spec.description   = %[To Csv]
   spec.email         = ["civitaspo@gmail.com"]
   spec.licenses      = ["MIT"]
-  # TODO set this: spec.homepage      = "https://github.com/civitaspo/embulk-filter-to_csv"
+  spec.homepage      = "https://github.com/civitaspo/embulk-filter-to_csv"
 
   spec.files         = `git ls-files`.split("\n") + Dir["classpath/*.jar"]
   spec.test_files    = spec.files.grep(%r"^(test|spec)/")
