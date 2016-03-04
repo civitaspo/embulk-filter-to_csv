@@ -112,6 +112,8 @@ public class ToCsvFilterPlugin
 
         Schema outputSchema = new Schema(ImmutableList.of(new Column(INDEX, task.getColumnName(), TYPE)));
 
+        logger.debug("output schema: {}", outputSchema);
+
         control.run(task.dump(), outputSchema);
     }
 
