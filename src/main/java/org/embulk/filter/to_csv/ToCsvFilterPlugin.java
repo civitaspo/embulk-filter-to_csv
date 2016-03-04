@@ -136,6 +136,93 @@ public class ToCsvFilterPlugin
             private final String delimiterString = String.valueOf(delimiter);
             private boolean shouldWriteHeaderLine = writeHeaderLine;
             private StringBuilder lineBuilder = new StringBuilder();
+            private final ColumnVisitor visitor = new ColumnVisitor() {
+                @Override
+                public void booleanColumn(Column column)
+                {
+                    addDelimiter(column);
+                    if (!pageReader.isNull(column)) {
+                        addValue(Boolean.toString(pageReader.getBoolean(column)));
+                    } else {
+                        addNullString();
+                    }
+                }
+
+                @Override
+                public void longColumn(Column column)
+                {
+                    addDelimiter(column);
+                    if (!pageReader.isNull(column)) {
+                        addValue(Long.toString(pageReader.getLong(column)));
+                    } else {
+                        addNullString();
+                    }
+                }
+
+                @Override
+                public void doubleColumn(Column column)
+                {
+                    addDelimiter(column);
+                    if (!pageReader.isNull(column)) {
+                        addValue(Double.toString(pageReader.getDouble(column)));
+                    } else {
+                        addNullString();
+                    }
+                }
+
+                @Override
+                public void stringColumn(Column column)
+                {
+                    addDelimiter(column);
+                    if (!pageReader.isNull(column)) {
+                        addValue(pageReader.getString(column));
+                    } else {
+                        addNullString();
+                    }
+                }
+
+                @Override
+                public void timestampColumn(Column column)
+                {
+                    addDelimiter(column);
+                    if (!pageReader.isNull(column)) {
+                        Timestamp value = pageReader.getTimestamp(column);
+                        addValue(timestampFormatters[column.getIndex()].format(value));
+                    } else {
+                        addNullString();
+                    }
+                }
+
+                @Override
+                public void jsonColumn(Column column)
+                {
+                    addDelimiter(column);
+                    if (!pageReader.isNull(column)) {
+                        Value value = pageReader.getJson(column);
+                        addValue(value.toJson());
+                    } else {
+                        addNullString();
+                    }
+                }
+
+
+                private void addDelimiter(Column column)
+                {
+                    if (column.getIndex() != 0) {
+                        lineBuilder.append(delimiterString);
+                    }
+                }
+
+                private void addValue(String v)
+                {
+                    lineBuilder.append(setEscapeAndQuoteValue(v, delimiter, quotePolicy, quote, escape, newlineInField, nullString));
+                }
+
+                private void addNullString()
+                {
+                    lineBuilder.append(nullString);
+                }
+            };
 
             @Override
             public void add(Page page)
@@ -144,94 +231,7 @@ public class ToCsvFilterPlugin
 
                 pageReader.setPage(page);
                 while (pageReader.nextRecord()) {
-                    outputSchema.visitColumns(new ColumnVisitor() {
-                        @Override
-                        public void booleanColumn(Column column)
-                        {
-                            addDelimiter(column);
-                            if (!pageReader.isNull(column)) {
-                                addValue(Boolean.toString(pageReader.getBoolean(column)));
-                            } else {
-                                addNullString();
-                            }
-                        }
-
-                        @Override
-                        public void longColumn(Column column)
-                        {
-                            addDelimiter(column);
-                            if (!pageReader.isNull(column)) {
-                                addValue(Long.toString(pageReader.getLong(column)));
-                            } else {
-                                addNullString();
-                            }
-                        }
-
-                        @Override
-                        public void doubleColumn(Column column)
-                        {
-                            addDelimiter(column);
-                            if (!pageReader.isNull(column)) {
-                                addValue(Double.toString(pageReader.getDouble(column)));
-                            } else {
-                                addNullString();
-                            }
-                        }
-
-                        @Override
-                        public void stringColumn(Column column)
-                        {
-                            addDelimiter(column);
-                            if (!pageReader.isNull(column)) {
-                                addValue(pageReader.getString(column));
-                            } else {
-                                addNullString();
-                            }
-                        }
-
-                        @Override
-                        public void timestampColumn(Column column)
-                        {
-                            addDelimiter(column);
-                            if (!pageReader.isNull(column)) {
-                                Timestamp value = pageReader.getTimestamp(column);
-                                addValue(timestampFormatters[column.getIndex()].format(value));
-                            } else {
-                                addNullString();
-                            }
-                        }
-
-                        @Override
-                        public void jsonColumn(Column column)
-                        {
-                            addDelimiter(column);
-                            if (!pageReader.isNull(column)) {
-                                Value value = pageReader.getJson(column);
-                                addValue(value.toJson());
-                            } else {
-                                addNullString();
-                            }
-                        }
-
-
-                        private void addDelimiter(Column column)
-                        {
-                            if (column.getIndex() != 0) {
-                                lineBuilder.append(delimiterString);
-                            }
-                        }
-
-                        private void addValue(String v)
-                        {
-                            lineBuilder.append(setEscapeAndQuoteValue(v, delimiter, quotePolicy, quote, escape, newlineInField, nullString));
-                        }
-
-                        private void addNullString()
-                        {
-                            lineBuilder.append(nullString);
-                        }
-                    });
-
+                    outputSchema.visitColumns(visitor);
                     addRecord();
                 }
             }
