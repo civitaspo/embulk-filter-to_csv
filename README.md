@@ -1,6 +1,6 @@
 # To Csv filter plugin for Embulk
 
-Convert a record to CSV.
+Convert a record to CSV. This plugin is the filter-plugin just ported from [embulk-formatter-csv](https://github.com/embulk/embulk/blob/c37ddc30520c10760f93f1e489890ab639859dd4/embulk-standards/src/main/java/org/embulk/standards/CsvFormatterPlugin.java).
 
 ## Overview
 
