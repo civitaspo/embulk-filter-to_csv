@@ -330,11 +330,7 @@ public class ToCsvFilterPlugin
 
     private String setQuoteValue(String v, char quote)
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append(quote);
-        sb.append(v);
-        sb.append(quote);
 
-        return sb.toString();
+        return String.valueOf(quote) + v + quote;
     }
 }
