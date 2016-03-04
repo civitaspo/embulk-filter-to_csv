@@ -62,7 +62,7 @@ public class ToCsvFilterPlugin
         String getColumnName();
 
         @Config("header_line")
-        @ConfigDefault("true")
+        @ConfigDefault("false")
         boolean getHeaderLine();
 
         @Config("delimiter")
