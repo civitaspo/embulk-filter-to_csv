@@ -253,8 +253,14 @@ public class ToCsvFilterPlugin
             private void addRecord()
             {
                 pageBuilder.setString(outputColumn, lineBuilder.toString());
-                lineBuilder = new StringBuilder();
                 pageBuilder.addRecord();
+                clearLineBuilder();
+            }
+
+            private void clearLineBuilder()
+            {
+                // cf. http://ameblo.jp/wataru420/entry-10962037844.html
+                lineBuilder.setLength(0);
             }
 
             private void writeHeader()
