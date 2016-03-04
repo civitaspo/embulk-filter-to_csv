@@ -122,7 +122,7 @@ public class ToCsvFilterPlugin
             final Schema outputSchema, final PageOutput output)
     {
         final PluginTask task = taskSource.loadTask(PluginTask.class);
-        final TimestampFormatter[] timestampFormatters = Timestamps.newTimestampColumnFormatters(task, outputSchema, task.getColumnOptions());
+        final TimestampFormatter[] timestampFormatters = Timestamps.newTimestampColumnFormatters(task, inputSchema, task.getColumnOptions());
         final char delimiter = task.getDelimiterChar();
         final QuotePolicy quotePolicy = task.getQuotePolicy();
         final char quote = task.getQuoteChar() != '\0' ? task.getQuoteChar() : '"';
@@ -132,12 +132,13 @@ public class ToCsvFilterPlugin
         final boolean writeHeaderLine = task.getHeaderLine();
 
         return new PageOutput() {
+            private boolean shouldWriteHeaderLine = writeHeaderLine;
+
             private final PageBuilder pageBuilder = new PageBuilder(Exec.getBufferAllocator(), outputSchema, output);
             private final PageReader pageReader = new PageReader(inputSchema);
             private final Column outputColumn = outputSchema.getColumn(INDEX);
             private final String delimiterString = String.valueOf(delimiter);
-            private boolean shouldWriteHeaderLine = writeHeaderLine;
-            private StringBuilder lineBuilder = new StringBuilder();
+            private final StringBuilder lineBuilder = new StringBuilder();
             private final ColumnVisitor visitor = new ColumnVisitor() {
                 @Override
                 public void booleanColumn(Column column)
@@ -233,7 +234,7 @@ public class ToCsvFilterPlugin
 
                 pageReader.setPage(page);
                 while (pageReader.nextRecord()) {
-                    outputSchema.visitColumns(visitor);
+                    pageReader.getSchema().visitColumns(visitor);
                     addRecord();
                 }
             }
